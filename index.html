@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Python compiler</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <!-- Startup Dialog -->
+    <div id="startup-overlay">
+      <div id="startup-box" class="glass-panel">
+        <h2>Python Environment Initialization</h2>
+        <p>Would you like to load extended modules? This takes a few seconds but adds data science libraries.</p>
+        <div class="modules-list">
+          <span>numpy</span> <span>pandas</span> <span>matplotlib</span>
+          <span>scipy</span> <span>sympy</span> <span>pillow</span>
+        </div>
+        <div class="btns">
+          <button id="btn-full" class="btn primary-btn">Load Modules</button>
+          <button id="btn-base" class="btn secondary-btn">Skip, Base Only</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Navbar -->
+    <div id="navbar">
+      <div class="logo">
+        <h1>PyCompiler</h1>
+        <span class="subtitle">Python Online Compiler</span>
+      </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div id="main">
+      <div id="toast" class="toast hidden">Loading...</div>
+
+      <!-- Editor Panel -->
+      <div id="editor-wrap">
+        <div class="panel-header">
+          <div class="tab">main.py</div>
+          <div class="panel-actions">
+            <button id="themebtn" class="icon-btn" title="Toggle Theme">
+              <svg id="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+              <svg id="moon-icon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+            <button id="sharebtn" class="btn outline-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+              Share
+            </button>
+            <button id="savebtn" class="btn outline-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+              Save .py
+            </button>
+            <button id="playbtn" class="btn blue-btn disabled" disabled>Run</button>
+            <button id="stopbtn" class="btn danger-btn hidden">Stop</button>
+          </div>
+        </div>
+        <div id="editor-container"></div>
+      </div>
+
+      <!-- Resizable Divider -->
+      <div id="divider"></div>
+
+      <!-- Right Panel (Terminal & Plot) -->
+      <div id="right-panel">
+        <div class="panel-header">
+          <div class="tab">Output</div>
+          <button id="clearbtn" class="btn outline-btn">Clear</button>
+        </div>
+        <div id="terminal-container"></div>
+        
+        <div id="plot-area-container" class="hidden">
+            <div class="panel-header">
+                <div class="tab">Plots</div>
+                <button id="clear-plot-btn" class="btn outline-btn">Clear</button>
+            </div>
+            <div id="plot-area"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

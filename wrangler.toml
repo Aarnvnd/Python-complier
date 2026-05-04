@@ -1,0 +1,10 @@
+name = "python-compiler-made-by-aarnvnd"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[assets]
+directory = "./dist"
+
+[[kv_namespaces]]
+binding = "CODE_STORE"
+id = "03c872c2b952493e90d12f8a49dfe3b0"
