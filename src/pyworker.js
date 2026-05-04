@@ -122,10 +122,6 @@ self.onmessage = async function(e) {
             postMessage({ type: 'done' });
         }
     }
-    else if (data.type === 'upload_file') {
-        pyodide.FS.writeFile(data.name, new Uint8Array(data.buffer));
-        postMessage({ type: 'status', msg: `Saved ${data.name} to virtual file system` });
-    }
     else if (data.type === 'format') {
         async function formatCode() {
             try {

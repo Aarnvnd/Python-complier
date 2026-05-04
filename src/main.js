@@ -30,7 +30,8 @@ const templateSelect = document.getElementById('template-select');
 const uploadBtn = document.getElementById('upload-btn');
 const fileInput = document.getElementById('file-input');
 const formatBtn = document.getElementById('formatbtn');
-const uploadedFilesBadge = document.getElementById('uploaded-files-badge');
+const saveLocalBtn = document.getElementById('save-local-btn');
+const loadLocalSelect = document.getElementById('load-local-select');
 
 // State
 let worker = null;
@@ -329,19 +330,15 @@ uploadBtn.addEventListener('click', () => {
   fileInput.click();
 });
 
-let uploadedFiles = [];
 fileInput.addEventListener('change', async (e) => {
-  if (!worker) return showToast("Start the environment first!");
-  
-  for (let file of e.target.files) {
-    const buffer = await file.arrayBuffer();
-    worker.postMessage({ type: 'upload_file', name: file.name, buffer });
-    if (!uploadedFiles.includes(file.name)) {
-      uploadedFiles.push(file.name);
-    }
-  }
-  uploadedFilesBadge.textContent = "📁 " + uploadedFiles.join(", ");
-  showToast("Files uploaded successfully!");
+  const file = e.target.files[0];
+  if (!file) return;
+  const text = await file.text();
+  editor.dispatch({
+    changes: { from: 0, to: editor.state.doc.length, insert: text }
+  });
+  showToast(`Loaded ${file.name}`);
+  e.target.value = ''; 
 });
 
 formatBtn.addEventListener('click', () => {
@@ -434,6 +431,42 @@ window.addEventListener('DOMContentLoaded', async () => {
       console.error(e);
     }
   }
+});
+
+function updateSavedProjectsList() {
+  loadLocalSelect.innerHTML = '<option value="">Load Saved...</option>';
+  const saves = JSON.parse(localStorage.getItem('py_saves') || '{}');
+  for (const name in saves) {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    loadLocalSelect.appendChild(opt);
+  }
+}
+updateSavedProjectsList();
+
+saveLocalBtn.addEventListener('click', () => {
+  const code = editor.state.doc.toString();
+  if (!code.trim()) return showToast("Nothing to save!");
+  const name = prompt("Enter a name for this project:");
+  if (!name || !name.trim()) return;
+  
+  const saves = JSON.parse(localStorage.getItem('py_saves') || '{}');
+  saves[name.trim()] = code;
+  localStorage.setItem('py_saves', JSON.stringify(saves));
+  updateSavedProjectsList();
+  showToast(`Saved project: ${name}`);
+});
+
+loadLocalSelect.addEventListener('change', (e) => {
+  const name = e.target.value;
+  if (!name) return;
+  const saves = JSON.parse(localStorage.getItem('py_saves') || '{}');
+  if (saves[name]) {
+    editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: saves[name] } });
+    showToast(`Loaded ${name}`);
+  }
+  e.target.value = '';
 });
 
 let toastTimeout;
