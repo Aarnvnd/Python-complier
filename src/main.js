@@ -26,7 +26,7 @@ const btnBase = document.getElementById('btn-base');
 const plotAreaContainer = document.getElementById('plot-area-container');
 const plotArea = document.getElementById('plot-area');
 const clearPlotBtn = document.getElementById('clear-plot-btn');
-const templateSelect = document.getElementById('template-select');
+
 const uploadBtn = document.getElementById('upload-btn');
 const fileInput = document.getElementById('file-input');
 const formatBtn = document.getElementById('formatbtn');
@@ -312,19 +312,7 @@ clearPlotBtn.addEventListener('click', () => {
   fitAddon.fit();
 });
 
-const templates = {
-  "data_science": "import pandas as pd\nimport matplotlib.pyplot as plt\n\n# Create sample data\ndata = {'Name': ['Alice', 'Bob'], 'Age': [25, 30]}\ndf = pd.DataFrame(data)\nprint(df)\n",
-  "calculator": "def add(x, y):\n    return x + y\nprint(add(5, 3))",
-  "api": "import urllib.request\nimport json\n\nurl = 'https://jsonplaceholder.typicode.com/todos/1'\nresponse = urllib.request.urlopen(url)\ndata = json.loads(response.read())\nprint('Todo Title:', data['title'])"
-};
 
-templateSelect.addEventListener('change', (e) => {
-  const val = e.target.value;
-  if (val && templates[val]) {
-    editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: templates[val] } });
-    e.target.value = ""; 
-  }
-});
 
 uploadBtn.addEventListener('click', () => {
   fileInput.click();
