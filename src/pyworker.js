@@ -3,6 +3,7 @@ importScripts("https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js");
 let pyodide;
 let inputBuffer = null;
 let inputFlag = null;
+self.has_black = false;
 
 async function initPyodide(loadModules) {
     try {
@@ -120,5 +121,32 @@ self.onmessage = async function(e) {
             postMessage({ type: 'stdout', text: err.toString(), isErr: true });
             postMessage({ type: 'done' });
         }
+    }
+    else if (data.type === 'upload_file') {
+        pyodide.FS.writeFile(data.name, new Uint8Array(data.buffer));
+        postMessage({ type: 'status', msg: `Saved ${data.name} to virtual file system` });
+    }
+    else if (data.type === 'format') {
+        async function formatCode() {
+            try {
+                if (!self.has_black) {
+                    postMessage({ type: 'status', msg: 'Loading formatter (black)...' });
+                    await pyodide.loadPackage("micropip");
+                    const micropip = pyodide.pyimport("micropip");
+                    await micropip.install("black");
+                    self.has_black = true;
+                    postMessage({ type: 'status', msg: 'Formatter loaded.' });
+                }
+                pyodide.globals.set("code_to_format", data.code);
+                const formatted = pyodide.runPython(`
+import black
+black.format_str(code_to_format, mode=black.FileMode())
+                `);
+                postMessage({ type: 'formatted', code: formatted });
+            } catch(e) {
+                postMessage({ type: 'format_error' });
+            }
+        }
+        formatCode();
     }
 };

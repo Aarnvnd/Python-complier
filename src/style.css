@@ -346,3 +346,31 @@ body {
 .cm-scroller {
   font-family: var(--font-mono) !important;
 }
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+  #main {
+    flex-direction: column;
+  }
+  #editor-wrap, #right-panel {
+    width: 100% !important;
+    flex: 1;
+  }
+  #divider {
+    width: 100%;
+    height: 6px;
+    cursor: row-resize;
+  }
+  #divider:hover, #divider.dragging {
+    height: 8px;
+    margin: -2px 0;
+  }
+  .panel-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .panel-header {
+    height: auto;
+    padding: 10px 16px;
+  }
+}

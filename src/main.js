@@ -6,6 +6,7 @@ import { dracula } from '@uiw/codemirror-theme-dracula';
 import { Terminal } from 'xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import 'xterm/css/xterm.css';
+import { basicSetup } from 'codemirror';
 
 // DOM Elements
 const editorContainer = document.getElementById('editor-container');
@@ -25,6 +26,11 @@ const btnBase = document.getElementById('btn-base');
 const plotAreaContainer = document.getElementById('plot-area-container');
 const plotArea = document.getElementById('plot-area');
 const clearPlotBtn = document.getElementById('clear-plot-btn');
+const templateSelect = document.getElementById('template-select');
+const uploadBtn = document.getElementById('upload-btn');
+const fileInput = document.getElementById('file-input');
+const formatBtn = document.getElementById('formatbtn');
+const uploadedFilesBadge = document.getElementById('uploaded-files-badge');
 
 // State
 let worker = null;
@@ -50,9 +56,7 @@ const lightTheme = EditorView.theme({
 const startState = EditorState.create({
   doc: "# Welcome to PyCompiler\n# Start writing your Python code here!\n\nprint('Hello, World!')\n",
   extensions: [
-    lineNumbers(),
-    highlightActiveLineGutter(),
-    keymap.of([...defaultKeymap, indentWithTab]),
+    basicSetup,
     python(),
     themeCompartment.of(dracula),
     EditorView.theme({
@@ -229,6 +233,17 @@ function createWorker(loadModules) {
       case 'plot':
         displayPlot(data.data);
         break;
+      case 'formatted':
+        formatBtn.disabled = false;
+        formatBtn.textContent = "Format";
+        editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: data.code } });
+        showToast("Code formatted!");
+        break;
+      case 'format_error':
+        formatBtn.disabled = false;
+        formatBtn.textContent = "Format";
+        showToast("Syntax error: Could not format");
+        break;
       case 'shared_buffers':
         inputFlag = new Int32Array(data.flag);
         inputBuffer = new Uint8Array(data.buf);
@@ -294,6 +309,46 @@ clearPlotBtn.addEventListener('click', () => {
   plotArea.innerHTML = '';
   plotAreaContainer.classList.add('hidden');
   fitAddon.fit();
+});
+
+const templates = {
+  "data_science": "import pandas as pd\nimport matplotlib.pyplot as plt\n\n# Create sample data\ndata = {'Name': ['Alice', 'Bob'], 'Age': [25, 30]}\ndf = pd.DataFrame(data)\nprint(df)\n",
+  "calculator": "def add(x, y):\n    return x + y\nprint(add(5, 3))",
+  "api": "import urllib.request\nimport json\n\nurl = 'https://jsonplaceholder.typicode.com/todos/1'\nresponse = urllib.request.urlopen(url)\ndata = json.loads(response.read())\nprint('Todo Title:', data['title'])"
+};
+
+templateSelect.addEventListener('change', (e) => {
+  const val = e.target.value;
+  if (val && templates[val]) {
+    editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: templates[val] } });
+    e.target.value = ""; 
+  }
+});
+
+uploadBtn.addEventListener('click', () => {
+  fileInput.click();
+});
+
+let uploadedFiles = [];
+fileInput.addEventListener('change', async (e) => {
+  if (!worker) return showToast("Start the environment first!");
+  
+  for (let file of e.target.files) {
+    const buffer = await file.arrayBuffer();
+    worker.postMessage({ type: 'upload_file', name: file.name, buffer });
+    if (!uploadedFiles.includes(file.name)) {
+      uploadedFiles.push(file.name);
+    }
+  }
+  uploadedFilesBadge.textContent = "📁 " + uploadedFiles.join(", ");
+  showToast("Files uploaded successfully!");
+});
+
+formatBtn.addEventListener('click', () => {
+  if (!worker) return showToast("Start the environment first!");
+  formatBtn.disabled = true;
+  formatBtn.textContent = "Formatting...";
+  worker.postMessage({ type: 'format', code: editor.state.doc.toString() });
 });
 
 function displayPlot(b64) {
